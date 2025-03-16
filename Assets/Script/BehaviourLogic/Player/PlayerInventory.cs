@@ -3,7 +3,8 @@ using UnityEngine;
 public class PlayerInventory : MonoBehaviour
 {
     public int collectedKeys = 0;
-    public int collectedPotions = 0;
+    public int collectedPotions = 1;
+    public float boostDuration = 5f;
     public int collectedRemotes = 0;
     public float boostDuration = 5f;
 
@@ -15,7 +16,26 @@ public class PlayerInventory : MonoBehaviour
         Debug.Log("PlayerInventory dimulai!");
     }
 
+<<<<<<< HEAD
 
+=======
+    public void UsePotion()
+    {
+        if (collectedPotions > 0)
+        {
+            collectedPotions--; // Kurangi potion
+            playerMovement.ApplySpeedBoost(boostDuration);
+            Debug.Log("Potion digunakan! Sisa potion: " + collectedPotions);
+        }
+        else
+        {
+            Debug.Log("Tidak ada potion tersisa!");
+        }
+    }
+
+    
+    // Fungsi untuk menambah item ke inventaris
+>>>>>>> 3e03c94e78572e81d22ec8566ec9172d2b18b3a6
     public void AddItem(Item item)
     {
         if (item.itemName == "Key")
@@ -34,8 +54,19 @@ public class PlayerInventory : MonoBehaviour
         Debug.Log("Item ditambah! " + item.itemName + " x" + item.quantity);
     }
 
+<<<<<<< HEAD
     public void UseRemote()
     { 
+=======
+    private void Update()
+    {
+         if (Input.GetKeyDown(KeyCode.F)) // Tekan "P" untuk menggunakan potion
+        {
+            UsePotion();
+        }
+    }
+
+>>>>>>> 3e03c94e78572e81d22ec8566ec9172d2b18b3a6
 
         if (collectedRemotes > 0)
         {
