@@ -2,8 +2,10 @@ using UnityEngine;
 
 public class StageManager : MonoBehaviour
 {
-    public GameObject[] stages;
+    public GameObject[] stages; 
     private int currentStage = 0;
+    public PlayerInventory playerInventory; 
+    public Movement playerMovement; 
 
     void Start()
     {
@@ -12,16 +14,21 @@ public class StageManager : MonoBehaviour
 
     public void NextStage()
     {
-        if (currentStage < stages.Length - 1)
+        if (CanMoveToNextStage()) 
         {
-            stages[currentStage].SetActive(false); 
+            stages[currentStage].SetActive(false);
             currentStage++; 
-            stages[currentStage].SetActive(true); 
-            Debug.Log("Pindah ke Stage: " + (currentStage + 1));
-        }
-        else
-        {
-            Debug.Log("Semua stage sudah selesai!");
+            if (currentStage < stages.Length)
+            {
+                stages[currentStage].SetActive(true); 
+                ResetPlayerInventory(); 
+                Debug.Log("Pindah ke Stage: " + (currentStage + 1));
+            }
+            else
+            {
+                Debug.Log("Semua stage sudah selesai!");
+            }
+        
         }
     }
 
@@ -31,5 +38,26 @@ public class StageManager : MonoBehaviour
         {
             stages[i].SetActive(i == currentStage);
         }
+    }
+
+    private bool CanMoveToNextStage()
+    {
+   
+        if (currentStage == 0 && playerInventory.collectedKeys >= 3)
+            return true;
+        //if (currentStage == 1 && playerInventory.collectedNotes >= 5)
+        //    return true;
+        //if (currentStage == 2 && playerInventory.collectedSpider >= 7) // Gunakan jumlah kaki laba-laba
+        //    return true;
+
+        return false;
+    }
+
+    private void ResetPlayerInventory()
+    {
+        playerInventory.collectedKeys = 0;
+        playerInventory.collectedPotions = 0;
+        playerInventory.collectedRemotes = 0;
+        Debug.Log("Semua item telah direset saat berpindah stage.");
     }
 }
