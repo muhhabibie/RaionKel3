@@ -6,7 +6,7 @@ public class Chest : Interactable
 {
     public Transform lid;
     public GameObject uiText;
-    public GameObject chestComponent;
+ 
     public PlayerInventory playerInventory;
 
     public Item[] storedItems;
@@ -20,7 +20,7 @@ public class Chest : Interactable
     private void Start()
     {
         if (uiText != null) uiText.SetActive(false);
-        if (chestComponent != null) chestComponent.SetActive(false);
+      
     }
 
     public override void Interact()
@@ -31,7 +31,7 @@ public class Chest : Interactable
             isOpening = true;
             GiveItemsToPlayer();
             if (uiText != null) uiText.SetActive(false);
-            if (chestComponent != null) chestComponent.SetActive(false);
+            
         }
     }
 
@@ -75,7 +75,7 @@ public class Chest : Interactable
             {
                 isOpening = false;
                 Debug.Log("Peti terbuka sepenuhnya!");
-                 if (chestComponent != lid) chestComponent.SetActive(true);
+                 
             }
         }
     }
@@ -96,7 +96,7 @@ public class Chest : Interactable
         {
             isPlayerNearby = false;
             if (uiText != null) uiText.SetActive(false);
-            if (chestComponent != null) chestComponent.SetActive(false);
+   
         }
     }
 }

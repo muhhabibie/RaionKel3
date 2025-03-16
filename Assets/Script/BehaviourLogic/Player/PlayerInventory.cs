@@ -6,7 +6,7 @@ public class PlayerInventory : MonoBehaviour
     public int collectedPotions = 1;
     public float boostDuration = 5f;
     public int collectedRemotes = 0;
-    public float boostDuration = 5f;
+
 
     public Movement playerMovement;
 
@@ -16,9 +16,7 @@ public class PlayerInventory : MonoBehaviour
         Debug.Log("PlayerInventory dimulai!");
     }
 
-<<<<<<< HEAD
 
-=======
     public void UsePotion()
     {
         if (collectedPotions > 0)
@@ -33,9 +31,7 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
-    
-    // Fungsi untuk menambah item ke inventaris
->>>>>>> 3e03c94e78572e81d22ec8566ec9172d2b18b3a6
+
     public void AddItem(Item item)
     {
         if (item.itemName == "Key")
@@ -54,30 +50,22 @@ public class PlayerInventory : MonoBehaviour
         Debug.Log("Item ditambah! " + item.itemName + " x" + item.quantity);
     }
 
-<<<<<<< HEAD
-    public void UseRemote()
-    { 
-=======
-    private void Update()
-    {
-         if (Input.GetKeyDown(KeyCode.F)) // Tekan "P" untuk menggunakan potion
-        {
-            UsePotion();
-        }
-    }
 
->>>>>>> 3e03c94e78572e81d22ec8566ec9172d2b18b3a6
+
+    public void UseRemote()
+    {
+
 
         if (collectedRemotes > 0)
         {
-            collectedRemotes--; 
+            collectedRemotes--;
             Debug.Log("Gunakan Remote");
 
-            EnemyAI enemy = FindFirstObjectByType<EnemyAI>(); 
+            EnemyAI enemy = FindFirstObjectByType<EnemyAI>();
             if (enemy != null)
             {
                 Debug.Log("Menggunakan Remote! Musuh akan stun selama 5 detik.");
-                enemy.StunEnemy(5f); 
+                enemy.StunEnemy(5f);
             }
             else
             {
@@ -87,19 +75,6 @@ public class PlayerInventory : MonoBehaviour
         else
         {
             Debug.Log("Tidak ada Remote tersisa!");
-        }
-    }
-    public void UsePotion()
-    {
-        if (collectedPotions > 0)
-        {
-            collectedPotions--; 
-            playerMovement.ApplySpeedBoost(boostDuration);
-            Debug.Log("Potion digunakan! Sisa potion: " + collectedPotions);
-        }
-        else
-        {
-            Debug.Log("Tidak ada potion tersisa!");
         }
     }
 
