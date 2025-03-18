@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/Scenes/GameplayRILLCuy.unity
     guid: d511beed16f5003488d42991622ab4fa
   - enabled: 1
-    path: Assets/Scenes/Main Menu.unity
+    path: Assets/Scenes/main scene/Main Menu.unity
     guid: a086930d4963b3542918eb1e5d1c7de4
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
