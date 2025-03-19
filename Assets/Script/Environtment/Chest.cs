@@ -6,8 +6,9 @@ public class Chest : Interactable
 {
     public Transform lid;
     public GameObject uiText;
- 
+
     public PlayerInventory playerInventory;
+    public Animator chestAnimator;  // Tambahkan referensi Animator
 
     public Item[] storedItems;
 
@@ -20,7 +21,6 @@ public class Chest : Interactable
     private void Start()
     {
         if (uiText != null) uiText.SetActive(false);
-      
     }
 
     public override void Interact()
@@ -31,7 +31,12 @@ public class Chest : Interactable
             isOpening = true;
             GiveItemsToPlayer();
             if (uiText != null) uiText.SetActive(false);
-            
+
+            // Trigger animasi membuka peti
+            if (chestAnimator != null)
+            {
+                chestAnimator.SetTrigger("OpenChest");
+            }
         }
     }
 
@@ -75,7 +80,6 @@ public class Chest : Interactable
             {
                 isOpening = false;
                 Debug.Log("Peti terbuka sepenuhnya!");
-                 
             }
         }
     }
@@ -86,7 +90,6 @@ public class Chest : Interactable
         {
             isPlayerNearby = true;
             if (uiText != null) uiText.SetActive(true);
-           
         }
     }
 
@@ -96,7 +99,6 @@ public class Chest : Interactable
         {
             isPlayerNearby = false;
             if (uiText != null) uiText.SetActive(false);
-   
         }
     }
 }

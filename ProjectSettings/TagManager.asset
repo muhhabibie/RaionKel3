@@ -6,6 +6,7 @@ TagManager:
   tags:
   - PlayerDetection
   - LightZone
+  - bush
   layers:
   - Default
   - TransparentFX
@@ -42,6 +43,9 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: foreground
+    uniqueID: 2970491109
     locked: 0
   m_RenderingLayers:
   - Default
