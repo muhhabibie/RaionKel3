@@ -21,7 +21,7 @@ public class RandomMovement : MonoBehaviour
         agent.updatePosition = true;
         agent.updateRotation = true;
 
-        MoveToRandomPoint(); // Cari tujuan awal
+        MoveToRandomPoint(); 
     }
 
     void Update()
