@@ -10,20 +10,37 @@ public class EnemyAI : MonoBehaviour
     public float chaseSpeed;
     public float aggressiveSpeed;
 
+    public AudioClip walkAudioClip;    // Suara langkah
+    public AudioClip chaseAudioClip;   // Suara ketika mengejar
+
+    public AudioSource footstepSource; // Drag dari Inspector
+    public AudioSource chaseSource;    // Drag dari Inspector
+
     private NavMeshAgent navAgent;
     private RandomMovement patrolScript;
     private bool isChasing = false;
     private bool isAggressive = false;
     private bool isPlayerHidden = false;
     private bool isStunned = false;
+    private SpriteRenderer spriteRenderer;
+    private Animator animator;
+    private Vector3 lastPosition;
 
     void Start()
     {
         navAgent = GetComponent<NavMeshAgent>();
         patrolScript = GetComponent<RandomMovement>();
-      
+        animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
 
-        Debug.Log("EnemyAI dimulai!");
+        navAgent.updateRotation = false;
+        lastPosition = transform.position;
+
+        // Warning kalau lupa assign AudioSource
+        if (footstepSource == null || chaseSource == null)
+        {
+            Debug.LogWarning("AudioSource belum di-assign di Inspector untuk EnemyAI!");
+        }
     }
 
     void Update()
@@ -38,40 +55,113 @@ public class EnemyAI : MonoBehaviour
             {
                 isChasing = false;
                 patrolScript.MoveToRandomPoint();
-                Debug.Log("Musuh kehilangan jejak, kembali berpatroli.");
+                StopChaseAudio();
             }
             else if (distanceToPlayer > attackRange)
             {
-        
+                FaceTarget();
                 navAgent.speed = isAggressive ? aggressiveSpeed : chaseSpeed;
                 navAgent.SetDestination(playerTransform.position);
-              
-
-                FaceTarget();
+                AdjustChaseAudio(distanceToPlayer);
             }
             else
             {
+                FaceTarget();
                 AttackPlayer();
             }
         }
         else if ((distanceToPlayer <= detectionRange || isAggressive) && !isPlayerHidden)
         {
             isChasing = true;
-            Debug.Log("Enemy mulai mengejar Player!");
+            PlayChaseAudio();
         }
+
+        HandleFootstepSound();
     }
 
     void AttackPlayer()
     {
         Debug.Log("Enemy menyerang Player!");
-        Destroy(playerTransform.gameObject);
+
+        GameManager gameManager = FindFirstObjectByType<GameManager>();
+        if (gameManager != null)
+        {
+            gameManager.GameOver();
+        }
+
+        StopChaseAudio();
     }
+
+    private void FaceTarget()
+    {
+        Vector3 movementDirection = navAgent.velocity;
+
+        if (Mathf.Abs(movementDirection.x) > Mathf.Abs(movementDirection.z))
+        {
+            spriteRenderer.flipX = movementDirection.x < 0;
+        }
+
+        transform.rotation = Quaternion.Euler(0, 0, 0);
+    }
+
+    private void PlayChaseAudio()
+    {
+        if (!chaseSource.isPlaying && chaseAudioClip != null)
+        {
+            chaseSource.clip = chaseAudioClip;
+            chaseSource.loop = true;
+            chaseSource.Play();
+        }
+    }
+
+    private void StopChaseAudio()
+    {
+        if (chaseSource.isPlaying)
+        {
+            chaseSource.Stop();
+        }
+    }
+
+    private void AdjustChaseAudio(float distance)
+    {
+        if (chaseSource.isPlaying && chaseAudioClip != null)
+        {
+            float minVolume = 0.3f;
+            float maxVolume = 1.0f;
+            chaseSource.volume = Mathf.Lerp(maxVolume, minVolume, distance / detectionRange);
+
+            float minPitch = 1.0f;
+            float maxPitch = 1.8f;
+            chaseSource.pitch = Mathf.Lerp(maxPitch, minPitch, distance / detectionRange);
+        }
+    }
+    private void HandleFootstepSound()
+    {
+        if ( !isStunned && navAgent.velocity.magnitude > 0.1f)
+        {
+            if (!footstepSource.isPlaying)
+            {
+                footstepSource.clip = walkAudioClip;
+                footstepSource.loop = true;
+                footstepSource.Play();
+            }
+        }
+        else
+        {
+            if (footstepSource.isPlaying)
+            {
+                footstepSource.Stop();
+            }
+        }
+    }
+
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
             isChasing = true;
+            PlayChaseAudio();
         }
         else if (other.CompareTag("LightZone"))
         {
@@ -83,7 +173,7 @@ public class EnemyAI : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("LightZone") && !isAggressive) 
+        if (other.CompareTag("LightZone") && !isAggressive)
         {
             isAggressive = false;
             navAgent.speed = chaseSpeed;
@@ -103,12 +193,20 @@ public class EnemyAI : MonoBehaviour
     {
         isStunned = true;
         navAgent.isStopped = true;
+        navAgent.velocity = Vector3.zero;
+        animator.speed = 0;
+
         Debug.Log("Musuh terkena stun selama " + duration + " detik!");
+
+        StopChaseAudio();
+        footstepSource.Stop();
 
         yield return new WaitForSeconds(duration);
 
         isStunned = false;
         navAgent.isStopped = false;
+        animator.speed = 1;
+
         Debug.Log("Stun selesai, musuh kembali mengejar!");
     }
 
@@ -117,12 +215,11 @@ public class EnemyAI : MonoBehaviour
         if (!isStunned)
         {
             isChasing = true;
-            isAggressive = true; 
+            isAggressive = true;
             navAgent.isStopped = false;
             navAgent.speed = aggressiveSpeed;
             navAgent.SetDestination(playerTransform.position);
-
-            Debug.Log("Musuh dipaksa mengejar Player oleh jaring laba-laba!");
+            PlayChaseAudio();
         }
     }
 
@@ -131,9 +228,10 @@ public class EnemyAI : MonoBehaviour
         isPlayerHidden = hidden;
         if (hidden)
         {
-            isChasing = false; 
-            isAggressive = false; 
+            isChasing = false;
+            isAggressive = false;
             Debug.Log("Player bersembunyi di rumput, Enemy tidak bisa melihat.");
+            StopChaseAudio();
         }
         else
         {
@@ -141,33 +239,18 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    private void FaceTarget()
-    {
-        Vector3 direction = (playerTransform.position - transform.position).normalized;
-        Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 10f);
-    }
     private void OnDrawGizmos()
     {
-        if (isAggressive)
-        {
-            Gizmos.color = Color.yellow; //Area agresif ketika Enemy masuk LightZone
-            Gizmos.DrawWireSphere(transform.position, detectionRange);
-        }
-        else
-        {
-            Gizmos.color = Color.green; 
-            Gizmos.DrawWireSphere(transform.position, detectionRange);
-        }
+        Gizmos.color = isAggressive ? Color.yellow : Color.green;
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
 
-        Gizmos.color = Color.red; // Jarak serangan musuh
+        Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
 
-        if (isStunned)
+        if (navAgent != null && navAgent.hasPath)
         {
-            Gizmos.color = Color.blue; 
-            Gizmos.DrawWireSphere(transform.position, attackRange);
+            Gizmos.color = Color.white;
+            Gizmos.DrawLine(transform.position, navAgent.destination);
         }
     }
 }
-

@@ -6,34 +6,66 @@ using UnityEngine.AI;
 public class RandomMovement : MonoBehaviour
 {
     public NavMeshAgent agent;
-    public Transform centrePoint; // Titik pusat area gerak
-    public float range = 20; 
+    public Transform centrePoint;
+    public float range = 20;
 
-    public List<Collider> stages; // List Collider untuk setiap stage
-    private int currentStageIndex = 0; // Stage aktif
+    private Animator animator;
+    private SpriteRenderer spriteRenderer;
+    private Vector3 lastPosition;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        SetStage(currentStageIndex); // Atur stage awal
+        animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
 
         agent.isStopped = false;
         agent.updatePosition = true;
         agent.updateRotation = true;
 
-        MoveToRandomPoint(); 
+        lastPosition = transform.position;
+
+        MoveToRandomPoint();
     }
 
     void Update()
     {
-        if (!agent.enabled)
-            return;
+        if (!agent.enabled) return;
 
         if (agent.remainingDistance <= agent.stoppingDistance)
             MoveToRandomPoint();
+
+        // DETEKSI ARAH GERAKAN UNTUK ANIMASI
+        Vector3 movementDirection = transform.position - lastPosition;
+        lastPosition = transform.position;
+
+        float horizontalSpeed = movementDirection.x; // Gerakan kiri/kanan
+        float verticalSpeed = movementDirection.z;  // Gerakan maju/mundur
+
+        if (Mathf.Abs(horizontalSpeed) > Mathf.Abs(verticalSpeed))
+        {
+            // Lebih dominan bergerak ke kiri/kanan
+            animator.SetFloat("Speed", Mathf.Abs(horizontalSpeed));
+            spriteRenderer.flipX = horizontalSpeed < 0;
+        }
+        else
+        {
+            // Lebih dominan bergerak ke depan/belakang
+            animator.SetFloat("Speed", Mathf.Abs(verticalSpeed));
+
+            // Rotasi agar sprite menghadap ke arah gerakan
+            if (verticalSpeed > 0)
+            {
+                transform.rotation = Quaternion.Euler(0, 0, 0); // Hadap depan
+            }
+            else
+            {
+                transform.rotation = Quaternion.Euler(0, 180, 0); // Hadap belakang
+            }
+        }
     }
 
-   public void MoveToRandomPoint()
+    public void MoveToRandomPoint()
     {
         Vector3 point;
         if (RandomPoint(centrePoint.position, range, out point))
@@ -57,25 +89,5 @@ public class RandomMovement : MonoBehaviour
 
         result = Vector3.zero;
         return false;
-    }
-
-    // Pindah ke stage tertentu
-    public void SetStage(int stageIndex)
-    {
-        if (stageIndex >= 0 && stageIndex < stages.Count)
-        {
-            currentStageIndex = stageIndex;
-            centrePoint = stages[stageIndex].transform;
-            range = stages[stageIndex].bounds.size.x / 2; // Sesuaikan range dengan ukuran stage
-        }
-    }
-
-    void OnTriggerEnter(Collider other)
-    {
-        int newStageIndex = stages.IndexOf(other);
-        if (newStageIndex != -1 && newStageIndex != currentStageIndex)
-        {
-            SetStage(newStageIndex);
-        }
     }
 }

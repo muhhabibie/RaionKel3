@@ -5,18 +5,18 @@ public class SceneTransition : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Player")) // Pastikan Player memiliki Tag "Player"
+        if (other.gameObject.CompareTag("Player"))
         {
-            int currentSceneIndex = SceneManager.GetActiveScene().buildIndex; // Dapatkan index scene saat ini
-            int nextSceneIndex = currentSceneIndex + 1; // Scene selanjutnya
+            int currentSceneIndex = SceneManager.GetActiveScene().buildIndex; 
+            int nextSceneIndex = currentSceneIndex + 1; 
             
-            if (nextSceneIndex < SceneManager.sceneCountInBuildSettings) // Cek jika masih ada scene berikutnya
+            if (nextSceneIndex < SceneManager.sceneCountInBuildSettings) 
             {
-                SceneManager.LoadScene(nextSceneIndex); // Pindah ke scene berikutnya
+                SceneManager.LoadScene(nextSceneIndex); 
             }
             else
             {
-                Debug.Log("Tidak ada stage berikutnya!"); // Jika sudah di stage terakhir
+                Debug.Log("Tidak ada stage berikutnya!"); 
             }
         }
     }

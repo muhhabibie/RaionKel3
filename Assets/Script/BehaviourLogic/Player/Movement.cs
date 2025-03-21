@@ -10,6 +10,7 @@ public class Movement : MonoBehaviour
     public float potionBoostAmount = 20f;
     public float gravity = -9.81f;
     private Vector3 velocity;
+    public AudioSource footstepAudio;
 
     public GameObject collisionIndicator;
     public GameObject specialCollisionIndicator;
@@ -55,11 +56,17 @@ public class Movement : MonoBehaviour
     private IEnumerator SpeedBoostCoroutine(float duration)
     {
         isBoosted = true;
+
+       
+            currentStamina = Mathf.Min(currentStamina + (maxStamina * 0.5f), maxStamina);
+        
         moveSpeed += potionBoostAmount;
         yield return new WaitForSeconds(duration);
+
         moveSpeed = originalSpeed;
         isBoosted = false;
     }
+
 
     void Update()
     {
@@ -68,7 +75,6 @@ public class Movement : MonoBehaviour
 
         Vector3 moveDirection = new Vector3(moveX, 0, moveZ).normalized;
 
-        // Stamina: mengurangi saat bergerak
         if (moveDirection.magnitude >= 0.1f && currentStamina > 0)
         {
             currentStamina -= staminaDepletionRate * Time.deltaTime;
@@ -78,7 +84,6 @@ public class Movement : MonoBehaviour
             currentStamina += staminaRegenRate * Time.deltaTime;
         }
 
-        // Menambah gravitasi jika karakter di udara
         if (controller.isGrounded)
         {
             velocity.y = -1f;
@@ -88,35 +93,44 @@ public class Movement : MonoBehaviour
             velocity.y += gravity * Time.deltaTime;
         }
 
-        // Update animasi pergerakan
-        if (moveDirection.magnitude >= 0.1f)
+        // **ANIMASI BERJALAN**
+        if (moveX > 0) // Jalan ke kanan
         {
-            if (moveZ > 0 || moveZ < 0)
-            {
-                animator.SetBool("isWalking", true);
-                animator.SetBool("JalanSamping", false);
-            }
-            else if (moveX != 0 && moveZ == 0)
-            {
-                animator.SetBool("isWalking", false);
-                animator.SetBool("JalanSamping", true);
-            }
-
-            if (!GetComponent<AudioSource>().isPlaying) 
-            {
-                GetComponent<AudioSource>().Play();  
-            }
+            animator.SetBool("JalanSamping", true);
+            animator.SetBool("JalanSampingKiri", false);
+            animator.SetBool("isWalking", false);
         }
-        else
+        else if (moveX < 0) // Jalan ke kiri
+        {
+            animator.SetBool("JalanSamping", false);
+            animator.SetBool("JalanSampingKiri", true);
+            animator.SetBool("isWalking", false);
+        }
+        else if (moveZ != 0) // Jalan depan/belakang
+        {
+            animator.SetBool("isWalking", true);
+            animator.SetBool("JalanSamping", false);
+            animator.SetBool("JalanSampingKiri", false);
+        }
+        else // Diam (Idle)
         {
             animator.SetBool("isWalking", false);
             animator.SetBool("JalanSamping", false);
-            GetComponent<AudioSource>().Stop();
+            animator.SetBool("JalanSampingKiri", false);
         }
+
+        if (moveDirection.magnitude >= 0.1f && !footstepAudio.isPlaying)
+        {
+            footstepAudio.Play();  // Putar suara langkah
+        }
+        else if (moveDirection.magnitude < 0.1f)
+        {
+            footstepAudio.Stop();  // Hentikan suara saat diam
+        }
+
 
         controller.Move((moveDirection * moveSpeed + velocity) * Time.deltaTime);
 
-    
         if (currentStamina <= 0)
         {
             currentStamina = 0;
@@ -127,14 +141,13 @@ public class Movement : MonoBehaviour
             moveSpeed = originalSpeed;
         }
 
-        // Update stamina bar UI
         if (staminaSlider != null)
         {
             staminaSlider.value = currentStamina;
         }
-    }
-
-    public float GetSpeed()
+    
+}
+public float GetSpeed()
     {
         return moveSpeed;
     }

@@ -1,59 +1,105 @@
+using TMPro;
 using UnityEngine;
-using TMPro;  
 
 public class PlayerInventory : MonoBehaviour
 {
     public int collectedKeys = 0;
-    public int collectedPotions = 1;
+    public int collectedPotions = 0;
     public float boostDuration = 5f;
     public int collectedRemotes = 0;
 
-    public Movement playerMovement;
+    private Movement playerMovement;
 
-    // Referensi ke TextMeshPro untuk key counter
-    public TextMeshProUGUI keyText;  // Pastikan ini terhubung di Inspector
+    // Referensi ke TextMeshPro untuk key counter dan item counter
+    public TextMeshProUGUI keyText; // Untuk menampilkan jumlah key
+    public TextMeshProUGUI potionText; // Untuk menampilkan jumlah potions
+    public TextMeshProUGUI remoteText; // Untuk menampilkan jumlah remotes
+
+    // Efek suara
+    public AudioClip potionSound;
+    public AudioClip remoteSound;
+
+    private AudioSource audioSource;
+
+    // Menambahkan variabel maxKeys untuk stage
+    public int maxKeys = 3; // Default untuk Stage 1
 
     private void Start()
     {
         playerMovement = GetComponent<Movement>();
-        UpdateKeyUI();  // Memperbarui UI saat pertama kali dimulai
+        audioSource = GetComponent<AudioSource>();
+
+        // Jika tidak ada AudioSource, tambahkan secara otomatis
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        UpdateKeyUI(); // Update UI untuk Key
+        UpdateItemUI(); // Update UI untuk Potion dan Remote
     }
 
+    // Fungsi untuk menambah item ke inventaris
     public void AddItem(Item item)
     {
         if (item.itemName == "Key")
         {
             collectedKeys += item.quantity;
-            UpdateKeyUI();  
+            UpdateKeyUI(); // Update UI untuk Key
         }
         else if (item.itemName == "Potion")
         {
             collectedPotions += item.quantity;
+            UpdateItemUI(); // Update UI untuk Potion
         }
         else if (item.itemName == "Remote")
         {
             collectedRemotes += item.quantity;
+            UpdateItemUI(); // Update UI untuk Remote
         }
 
         Debug.Log("Item ditambah! " + item.itemName + " x" + item.quantity);
     }
 
+    // Fungsi untuk memperbarui UI jumlah Key
     public void UpdateKeyUI()
     {
-
         if (keyText != null)
         {
-            keyText.text = "KEY " + collectedKeys + "/3";
+            keyText.text = "KEY " + collectedKeys + "/" + maxKeys; // Update dengan maxKeys
         }
     }
 
+    // Fungsi untuk memperbarui UI jumlah item (Potion dan Remote)
+    public void UpdateItemUI()
+    {
+        if (potionText != null)
+        {
+            potionText.text = "POTION " + collectedPotions; // Update dengan jumlah potions
+        }
+
+        if (remoteText != null)
+        {
+            remoteText.text = "REMOTE " + collectedRemotes; // Update dengan jumlah remotes
+        }
+    }
+
+    // Fungsi untuk menggunakan Potion
     public void UsePotion()
     {
         if (collectedPotions > 0)
         {
             collectedPotions--;
-            playerMovement.ApplySpeedBoost(boostDuration);
+            playerMovement.ApplySpeedBoost(boostDuration); // Menambahkan boost ke kecepatan
             Debug.Log("Potion digunakan! Sisa potion: " + collectedPotions);
+
+            // Mainkan efek suara potion
+            if (potionSound != null)
+            {
+                audioSource.PlayOneShot(potionSound);
+            }
+
+            UpdateItemUI(); // Update UI setelah menggunakan potion
         }
         else
         {
@@ -61,6 +107,7 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
+    // Fungsi untuk menggunakan Remote
     public void UseRemote()
     {
         if (collectedRemotes > 0)
@@ -68,16 +115,24 @@ public class PlayerInventory : MonoBehaviour
             collectedRemotes--;
             Debug.Log("Gunakan Remote");
 
-            EnemyAI enemy = FindFirstObjectByType<EnemyAI>();
+            EnemyAI enemy = FindObjectOfType<EnemyAI>(); // Cari musuh di scene
             if (enemy != null)
             {
                 Debug.Log("Menggunakan Remote! Musuh akan stun selama 5 detik.");
-                enemy.StunEnemy(5f);
+                enemy.StunEnemy(5f); // Stun musuh selama 5 detik
+
+                // Mainkan efek suara remote
+                if (remoteSound != null)
+                {
+                    audioSource.PlayOneShot(remoteSound);
+                }
             }
             else
             {
                 Debug.Log("Tidak ada musuh yang ditemukan dalam scene.");
             }
+
+            UpdateItemUI(); // Update UI setelah menggunakan remote
         }
         else
         {
@@ -87,17 +142,15 @@ public class PlayerInventory : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F))
+        // Fungsi untuk menangani input pengguna
+        if (Input.GetKeyDown(KeyCode.F)) // Tekan "F" untuk menggunakan Potion
         {
             UsePotion();
         }
 
-        if (Input.GetKeyDown(KeyCode.X))
+        if (Input.GetKeyDown(KeyCode.X)) // Tekan "X" untuk menggunakan Remote
         {
             UseRemote();
         }
-
     }
 }
-
-
