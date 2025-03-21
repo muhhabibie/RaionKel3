@@ -27,9 +27,6 @@ public class WinningCondition : MonoBehaviour
 
     void WinGame()
     {
-      
-
-        // Load Scene Selanjutnya
-        SceneManager.LoadScene(nextSceneName);
+        SceneManager.LoadScene("Winning Scene");
     }
 }
