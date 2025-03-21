@@ -32,9 +32,9 @@ public class Chest : Interactable
             GiveItemsToPlayer();
             if (uiText != null) uiText.SetActive(false);
 
-            // Trigger animasi membuka peti
             if (chestAnimator != null)
             {
+                Debug.Log("buka animasi");
                 chestAnimator.SetTrigger("OpenChest");
             }
         }

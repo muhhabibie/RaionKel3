@@ -30,7 +30,8 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f; 
         string currentScene = SceneManager.GetActiveScene().name;
-        SceneManager.LoadScene(currentScene); 
+        SceneManager.LoadScene(currentScene);
+        Debug.Log("mencet restart");
     }
 
     // Fungsi untuk quit game
