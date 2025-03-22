@@ -12,7 +12,6 @@ public class Movement : MonoBehaviour
     public float gravity = -9.81f;
     private Vector3 velocity;
     public AudioSource footstepAudio;
-    public PlayerInventory playerInventory;
     private bool isBoosted = false;
 
     public CharacterController controller;

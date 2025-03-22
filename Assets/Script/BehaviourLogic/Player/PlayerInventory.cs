@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PlayerInventory : MonoBehaviour
 {
@@ -11,17 +12,21 @@ public class PlayerInventory : MonoBehaviour
 
     private Movement playerMovement;
 
-    public TextMeshProUGUI keyText; 
-    public TextMeshProUGUI potionText; 
-    public TextMeshProUGUI remoteText; 
+    public TextMeshProUGUI keyText;
+    public TextMeshProUGUI potionText;
+    public TextMeshProUGUI remoteText;
+    
 
- 
     public AudioClip potionSound;
     public AudioClip remoteSound;
-
+    public Image potionHighlight;
+    public Image remoteHighlight;
     private AudioSource audioSource;
 
-    public int maxKeys = 3; 
+    public int maxKeys = 3;
+
+    private enum ActiveItem { Potion, Remote }
+    private ActiveItem currentActiveItem = ActiveItem.Potion;
 
     private void Start()
     {
@@ -33,7 +38,6 @@ public class PlayerInventory : MonoBehaviour
             audioSource = gameObject.AddComponent<AudioSource>();
         }
 
-    
         string sceneName = SceneManager.GetActiveScene().name;
         switch (sceneName)
         {
@@ -51,39 +55,54 @@ public class PlayerInventory : MonoBehaviour
                 break;
         }
 
-        UpdateKeyUI(); 
-        UpdateItemUI(); 
+        UpdateKeyUI();
+        UpdateItemUI();
+        UpdateActiveItemUI();
     }
 
-  
     public void AddItem(Item item)
     {
         if (item.itemName == "Key")
         {
             collectedKeys += item.quantity;
-            UpdateKeyUI(); 
+            UpdateKeyUI();
         }
         else if (item.itemName == "Potion")
         {
             collectedPotions += item.quantity;
-            UpdateItemUI(); 
+            UpdateItemUI();
         }
         else if (item.itemName == "Remote")
         {
             collectedRemotes += item.quantity;
-            UpdateItemUI(); 
+            UpdateItemUI();
         }
-
-        Debug.Log("Item ditambah! " + item.itemName + " x" + item.quantity);
     }
-
 
     public void UpdateKeyUI()
     {
         if (keyText != null)
         {
-            keyText.text = "KEY " + collectedKeys + "/" + maxKeys; 
+            keyText.text = "KEY " + collectedKeys + "/" + maxKeys;
         }
+    }
+    public void UpdateActiveItemUI()
+    {
+        // Highlight yang aktif
+        if (currentActiveItem == ActiveItem.Potion)
+        {
+            potionHighlight.enabled = true;
+            remoteHighlight.enabled = false;
+        }
+        else if (currentActiveItem == ActiveItem.Remote)
+        {
+            potionHighlight.enabled = false;
+            remoteHighlight.enabled = true;
+        }
+
+
+        potionText.text = "POTION " + collectedPotions;
+        remoteText.text = "REMOTE " + collectedRemotes;
     }
 
 
@@ -91,82 +110,72 @@ public class PlayerInventory : MonoBehaviour
     {
         if (potionText != null)
         {
-            potionText.text = "POTION " + collectedPotions; 
+            potionText.text = "POTION " + collectedPotions;
         }
 
         if (remoteText != null)
         {
-            remoteText.text = "REMOTE " + collectedRemotes; 
+            remoteText.text = "REMOTE " + collectedRemotes;
         }
     }
 
+   
 
     public void UsePotion()
     {
         if (collectedPotions > 0)
         {
             collectedPotions--;
-            playerMovement.ApplySpeedBoost(boostDuration); 
-            Debug.Log("Potion digunakan! Sisa potion: " + collectedPotions);
+            playerMovement.ApplySpeedBoost(boostDuration);
 
-          
             if (potionSound != null)
             {
                 audioSource.PlayOneShot(potionSound);
             }
-
-            UpdateItemUI(); 
-        }
-        else
-        {
-            Debug.Log("Tidak ada potion tersisa!");
+            UpdateItemUI();
         }
     }
 
-    
     public void UseRemote()
     {
         if (collectedRemotes > 0)
         {
             collectedRemotes--;
-            Debug.Log("Gunakan Remote");
 
-            EnemyAI enemy = FindFirstObjectByType<EnemyAI>(); 
+            EnemyAI enemy = FindFirstObjectByType<EnemyAI>();
             if (enemy != null)
             {
-                Debug.Log("Menggunakan Remote! Musuh akan stun selama 5 detik.");
-                enemy.StunEnemy(5f); 
-
-            
+                enemy.StunEnemy(5f);
                 if (remoteSound != null)
                 {
                     audioSource.PlayOneShot(remoteSound);
                 }
             }
-            else
-            {
-                Debug.Log("Tidak ada musuh yang ditemukan dalam scene.");
-            }
-
-            UpdateItemUI(); 
-        }
-        else
-        {
-            Debug.Log("Tidak ada Remote tersisa!");
+            UpdateItemUI();
         }
     }
 
     void Update()
     {
-
-        if (Input.GetMouseButtonDown(0))
+        // Switch item dengan tombol 1 dan 2
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            UsePotion();
+            currentActiveItem = ActiveItem.Potion;
+            UpdateActiveItemUI();
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            currentActiveItem = ActiveItem.Remote;
+            UpdateActiveItemUI();
         }
 
-        if (Input.GetKeyDown(KeyCode.X)) 
+        // Gunakan item aktif dengan klik kiri
+        if (Input.GetMouseButtonDown(0))
         {
-            UseRemote();
+            if (currentActiveItem == ActiveItem.Potion)
+                UsePotion();
+            else if (currentActiveItem == ActiveItem.Remote)
+                UseRemote();
         }
     }
 }
