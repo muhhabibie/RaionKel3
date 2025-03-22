@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class SpiderWeb : MonoBehaviour
 {
-    public float slowSpeed = 2f;
+    float slowSpeed = 10f;
     private float normalSpeed;
 
     private void OnTriggerEnter(Collider other)
@@ -14,17 +14,13 @@ public class SpiderWeb : MonoBehaviour
             {
                 normalSpeed = playerMovement.GetSpeed();
                 playerMovement.SetSpeed(slowSpeed);
-                Debug.Log("Player terkena jaring laba-laba! Kecepatan dikurangi.");
 
-                EnemyAI enemy = FindFirstObjectByType<EnemyAI>();
-                if (enemy != null)
-                {
-                    enemy.ForceChasePlayer();
-                    Debug.Log("Musuh langsung mengejar Player karena terkena jaring laba-laba!");
-                }
+                Debug.Log("Player terkena jaring laba-laba! Kecepatan dikurangi.");
             }
         }
     }
+    
+    
 
     private void OnTriggerExit(Collider other)
     {
@@ -34,6 +30,7 @@ public class SpiderWeb : MonoBehaviour
             if (playerMovement != null)
             {
                 playerMovement.SetSpeed(normalSpeed);
+                playerMovement.ResetSpeedToOriginal();
                 Debug.Log("Player keluar dari jaring laba-laba! Kecepatan kembali normal.");
             }
         }

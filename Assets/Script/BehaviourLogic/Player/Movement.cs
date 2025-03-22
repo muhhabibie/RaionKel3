@@ -4,6 +4,7 @@ using UnityEngine.UI;  // Tambahkan ini untuk mengakses UI (Slider)
 
 public class Movement : MonoBehaviour
 {
+    private bool isSlowedByWeb = false;
     public float moveSpeed = 150f;
     private float originalSpeed;
     public float speedBoostAmount = 20f;
@@ -11,11 +12,6 @@ public class Movement : MonoBehaviour
     public float gravity = -9.81f;
     private Vector3 velocity;
     public AudioSource footstepAudio;
-
-    public GameObject collisionIndicator;
-    public GameObject specialCollisionIndicator;
-    public Transform cameraTransform;
-
     public PlayerInventory playerInventory;
     private bool isBoosted = false;
 
@@ -131,12 +127,12 @@ public class Movement : MonoBehaviour
 
         controller.Move((moveDirection * moveSpeed + velocity) * Time.deltaTime);
 
-        if (currentStamina <= 0)
+        if (currentStamina <= 0 && !isSlowedByWeb)
         {
             currentStamina = 0;
             moveSpeed = 0;
         }
-        else if (currentStamina > 0 && moveSpeed == 0)
+        else if (currentStamina > 0 && moveSpeed == 0 && !isSlowedByWeb)
         {
             moveSpeed = originalSpeed;
         }
@@ -147,7 +143,14 @@ public class Movement : MonoBehaviour
         }
     
 }
-public float GetSpeed()
+
+    public void ResetSpeedToOriginal()
+    {
+        moveSpeed = originalSpeed;
+        isSlowedByWeb = false;
+    }
+
+    public float GetSpeed()
     {
         return moveSpeed;
     }
@@ -155,5 +158,7 @@ public float GetSpeed()
     public void SetSpeed(float newSpeed)
     {
         moveSpeed = newSpeed;
+        isSlowedByWeb = true;
     }
+
 }

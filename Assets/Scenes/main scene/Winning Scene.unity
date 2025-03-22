@@ -691,6 +691,7 @@ GameObject:
   - component: {fileID: 607099126}
   - component: {fileID: 607099128}
   - component: {fileID: 607099127}
+  - component: {fileID: 607099129}
   m_Layer: 5
   m_Name: Winning
   m_TagString: Untagged
@@ -755,6 +756,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 607099125}
   m_CullTransparentMesh: 1
+--- !u!114 &607099129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 607099125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8df888cd32eaf1f41a3bc535a418a96f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  winUI: {fileID: 0}
+  winSound: {fileID: 0}
 --- !u!1 &828814799
 GameObject:
   m_ObjectHideFlags: 0
@@ -1164,8 +1179,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 4.9, y: 67.8}
-  m_SizeDelta: {x: 416.2228, y: 47.7468}
+  m_AnchoredPosition: {x: 69.11399, y: 79}
+  m_SizeDelta: {x: 572.2296, y: 139.1191}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1405414962
 MonoBehaviour:
@@ -1199,9 +1214,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'YEEAAYY MENANGG !!!!
-
-'
+  m_text: YOU WIN
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1228,8 +1241,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 120
+  m_fontSizeBase: 120
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

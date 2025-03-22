@@ -25,6 +25,8 @@ public class EnemyAI : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Animator animator;
     private Vector3 lastPosition;
+    private Coroutine stunCoroutine;
+
 
     void Start()
     {
@@ -33,7 +35,7 @@ public class EnemyAI : MonoBehaviour
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        navAgent.updateRotation = false;
+        navAgent.updateRotation = true;
         lastPosition = transform.position;
 
         // Warning kalau lupa assign AudioSource
@@ -59,14 +61,14 @@ public class EnemyAI : MonoBehaviour
             }
             else if (distanceToPlayer > attackRange)
             {
-                FaceTarget();
+               
                 navAgent.speed = isAggressive ? aggressiveSpeed : chaseSpeed;
                 navAgent.SetDestination(playerTransform.position);
                 AdjustChaseAudio(distanceToPlayer);
             }
             else
             {
-                FaceTarget();
+             
                 AttackPlayer();
             }
         }
@@ -92,17 +94,7 @@ public class EnemyAI : MonoBehaviour
         StopChaseAudio();
     }
 
-    private void FaceTarget()
-    {
-        Vector3 movementDirection = navAgent.velocity;
-
-        if (Mathf.Abs(movementDirection.x) > Mathf.Abs(movementDirection.z))
-        {
-            spriteRenderer.flipX = movementDirection.x < 0;
-        }
-
-        transform.rotation = Quaternion.Euler(0, 0, 0);
-    }
+    
 
     private void PlayChaseAudio()
     {
@@ -180,12 +172,24 @@ public class EnemyAI : MonoBehaviour
             Debug.Log("Enemy keluar dari LightZone, kembali normal.");
         }
     }
-
-    public void StunEnemy(float duration)
+    public void StunEnemy(float stunDuration)
     {
         if (!isStunned)
         {
-            StartCoroutine(StunRoutine(duration));
+            isStunned = true;
+            navAgent.isStopped = true;
+
+            if (animator != null)
+            {
+                animator.SetBool("isStunned", true);
+            }
+
+            if (stunCoroutine != null)
+            {
+                StopCoroutine(stunCoroutine);
+            }
+
+            stunCoroutine = StartCoroutine(StunRoutine(stunDuration));
         }
     }
 
@@ -194,7 +198,6 @@ public class EnemyAI : MonoBehaviour
         isStunned = true;
         navAgent.isStopped = true;
         navAgent.velocity = Vector3.zero;
-        animator.speed = 0;
 
         Debug.Log("Musuh terkena stun selama " + duration + " detik!");
 
@@ -205,23 +208,16 @@ public class EnemyAI : MonoBehaviour
 
         isStunned = false;
         navAgent.isStopped = false;
-        animator.speed = 1;
+
+        if (animator != null)
+        {
+            animator.SetBool("isStunned", false); // reset animasi stun
+        }
 
         Debug.Log("Stun selesai, musuh kembali mengejar!");
     }
 
-    public void ForceChasePlayer()
-    {
-        if (!isStunned)
-        {
-            isChasing = true;
-            isAggressive = true;
-            navAgent.isStopped = false;
-            navAgent.speed = aggressiveSpeed;
-            navAgent.SetDestination(playerTransform.position);
-            PlayChaseAudio();
-        }
-    }
+
 
     public void SetPlayerHidden(bool hidden)
     {

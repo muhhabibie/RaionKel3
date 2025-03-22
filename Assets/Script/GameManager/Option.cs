@@ -6,16 +6,28 @@ public class Option : MonoBehaviour
     public Slider volumeSlider;
     public Slider brightnessSlider;
 
+    public AudioClip openOptionSound; // Tambahkan audio clip di Inspector
+    private AudioSource audioSource;
+
     private void Start()
     {
-        // Load saved settings
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        if (openOptionSound != null)
+        {
+            audioSource.PlayOneShot(openOptionSound);
+        }
+
         volumeSlider.value = PlayerPrefs.GetFloat("Volume", 1.0f);
         brightnessSlider.value = PlayerPrefs.GetFloat("Brightness", 1.0f);
 
         ApplyVolume(volumeSlider.value);
         ApplyBrightness(brightnessSlider.value);
 
-        // Add listeners
         volumeSlider.onValueChanged.AddListener(ApplyVolume);
         brightnessSlider.onValueChanged.AddListener(ApplyBrightness);
     }

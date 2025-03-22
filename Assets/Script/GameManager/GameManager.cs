@@ -4,40 +4,40 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public GameObject gameOverUI;
-    private bool isGameOver = false;
+    public AudioClip gameOverSound;
+
+    private AudioSource audioSource;
 
     private void Start()
     {
+        Time.timeScale = 1f;
+        audioSource = GetComponent<AudioSource>();
         gameOverUI.SetActive(false);
     }
-    public void ShowGameOver()
-    {
-        gameOverUI.SetActive(true); 
-        Time.timeScale = 0f; 
-    }
+
 
     public void GameOver()
     {
-        // Menampilkan UI Game Over
-        if (!isGameOver)
+        gameOverUI.SetActive(true);
+        Time.timeScale = 0f;
+
+        // Mainkan suara game over
+        if (gameOverSound != null)
         {
-            isGameOver = true;
-            gameOverUI.SetActive(true); // Menampilkan UI Game Over
-            Time.timeScale = 0f; // Hentikan waktu saat game over
+            audioSource.PlayOneShot(gameOverSound);
         }
     }
+
     public void RestartGame()
     {
-        Time.timeScale = 1f; 
-        string currentScene = SceneManager.GetActiveScene().name;
-        SceneManager.LoadScene(currentScene);
-        Debug.Log("mencet restart");
+        Time.timeScale = 1f;
+        gameOverUI.SetActive(false);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    // Fungsi untuk quit game
     public void QuitGame()
     {
         Debug.Log("Keluar dari game...");
-        Application.Quit(); // Keluar dari aplikasi
+        Application.Quit();
     }
 }

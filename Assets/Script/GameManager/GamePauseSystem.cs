@@ -1,34 +1,24 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.EventSystems;
 
 public class GamePauseSystem : MonoBehaviour
 {
     [SerializeField] private GameObject pausePanel;
+    [SerializeField] private AudioClip openPauseSound;
+    [SerializeField] private AudioClip closePauseSound;
+
+    private AudioSource audioSource;
     private bool isPaused = false;
     private static GamePauseSystem instance;
 
-    void Awake()
+    private string lastScene; 
+
+    
+
+    private void Start()
     {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-
-            if (pausePanel == null)
-            {
-                pausePanel = GameObject.Find("PausePanel");
-            }
-
-            if (pausePanel != null)
-            {
-                DontDestroyOnLoad(pausePanel);
-            }
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        lastScene = SceneManager.GetActiveScene().name;
+        Debug.Log("Game dimulai di: " + lastScene);
     }
 
     void Update()
@@ -55,6 +45,9 @@ public class GamePauseSystem : MonoBehaviour
             pausePanel.SetActive(true);
             Time.timeScale = 0f;
             isPaused = true;
+
+            if (openPauseSound != null)
+                audioSource.PlayOneShot(openPauseSound);
         }
     }
 
@@ -68,8 +61,11 @@ public class GamePauseSystem : MonoBehaviour
         if (pausePanel != null)
         {
             pausePanel.SetActive(false);
-            Time.timeScale = 0f;
+            Time.timeScale = 1f;
             isPaused = false;
+
+            if (closePauseSound != null)
+                audioSource.PlayOneShot(closePauseSound);
         }
     }
 
@@ -83,13 +79,5 @@ public class GamePauseSystem : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
-
-    private string lastScene; // Menyimpan nama scene terakhir
-
-    private void Start()
-    {
-        lastScene = SceneManager.GetActiveScene().name; // Simpan scene pertama saat game mulai
-        Debug.Log("Game dimulai di: " + lastScene);
     }
 }

@@ -3,8 +3,21 @@ using UnityEngine.SceneManagement;
 
 public class WinningCondition : MonoBehaviour
 {
-    public string nextSceneName = "Main Menu"; // Atur scene tujuan setelah menang
+    public GameObject winUI;                  
+    public AudioClip winSound;                 
+
+    private AudioSource audioSource;
     private bool hasWon = false;
+
+    private void Start()
+    {
+        if (winUI != null)
+            winUI.SetActive(false);
+
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -15,18 +28,27 @@ public class WinningCondition : MonoBehaviour
             if (playerInventory != null && playerInventory.collectedKeys >= 7)
             {
                 hasWon = true;
-                Debug.Log(" Selamat! Anda menang!");
+                Debug.Log("Selamat! Anda menang!");
                 WinGame();
             }
             else
             {
-                Debug.Log(" Butuh 7 kunci untuk menang!");
+                Debug.Log("Butuh 7 kunci untuk menang!");
             }
         }
     }
 
     void WinGame()
     {
-        SceneManager.LoadScene("Winning Scene");
+        if (winUI != null)
+            winUI.SetActive(true);
+
+        if (winSound != null)
+            audioSource.PlayOneShot(winSound);
+
+        Time.timeScale = 0f; 
     }
+
+  
+    
 }

@@ -20,8 +20,8 @@ public class RandomMovement : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         agent.isStopped = false;
-        agent.updatePosition = true;
-        agent.updateRotation = true;
+      
+   
 
         lastPosition = transform.position;
 
@@ -35,36 +35,36 @@ public class RandomMovement : MonoBehaviour
         if (agent.remainingDistance <= agent.stoppingDistance)
             MoveToRandomPoint();
 
-        // DETEKSI ARAH GERAKAN UNTUK ANIMASI
+        // Deteksi arah gerakan untuk animasi
         Vector3 movementDirection = transform.position - lastPosition;
         lastPosition = transform.position;
 
-        float horizontalSpeed = movementDirection.x; // Gerakan kiri/kanan
-        float verticalSpeed = movementDirection.z;  // Gerakan maju/mundur
+        float horizontalSpeed = movementDirection.x;
+        float verticalSpeed = movementDirection.z;
+
+        animator.SetFloat("Speed", agent.velocity.magnitude);
+
+        // Reset semua arah dulu
+        animator.SetBool("JalanKanan", false);
+        animator.SetBool("JalanKiri", false);
 
         if (Mathf.Abs(horizontalSpeed) > Mathf.Abs(verticalSpeed))
         {
-            // Lebih dominan bergerak ke kiri/kanan
-            animator.SetFloat("Speed", Mathf.Abs(horizontalSpeed));
-            spriteRenderer.flipX = horizontalSpeed < 0;
-        }
-        else
-        {
-            // Lebih dominan bergerak ke depan/belakang
-            animator.SetFloat("Speed", Mathf.Abs(verticalSpeed));
+            if (horizontalSpeed > 0.01f)
+            {
+          
+                animator.SetBool("JalanKanan", true);
+                spriteRenderer.flipX = false;
 
-            // Rotasi agar sprite menghadap ke arah gerakan
-            if (verticalSpeed > 0)
-            {
-                transform.rotation = Quaternion.Euler(0, 0, 0); // Hadap depan
             }
-            else
+            else if (horizontalSpeed < -0.01f)
             {
-                transform.rotation = Quaternion.Euler(0, 180, 0); // Hadap belakang
+                animator.SetBool("JalanKiri", true);
+                spriteRenderer.flipX = false;
             }
+
         }
     }
-
     public void MoveToRandomPoint()
     {
         Vector3 point;
